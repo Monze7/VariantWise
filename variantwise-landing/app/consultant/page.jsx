@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { SendHorizontal, PlusCircle } from "lucide-react"
 import { ConsultantSidebar } from "@/components/consultant-sidebar"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import axios from "axios"
 
 export default function ConsultantPage() {
   const [message, setMessage] = useState("")
@@ -50,24 +51,97 @@ export default function ConsultantPage() {
     setMessage("")
     setIsLoading(true)
 
-    // Simulate AI response delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      // Call the API endpoint with the user's message
+      const response = await axios.post("http://localhost:3001/generate", {
+        prompt: userMessage
+      });
+      
+      // Parse and format the response
+      const aiResponseText = response.data.responseText;
+      let formattedResponse = aiResponseText;
+      
+      // Check if the response is JSON
+      try {
+        const jsonData = JSON.parse(aiResponseText);
+        formattedResponse = formatJsonResponse(jsonData);
+      } catch (error) {
+        // If not valid JSON, use the text as is
+        console.log("Response is not JSON format");
+      }
 
-    // Add AI response
-    const aiResponse = getAIResponse(userMessage)
-    setChats(
-      updatedChats.map((chat) => {
-        if (chat.id === activeChat) {
-          return {
-            ...chat,
-            messages: [...chat.messages, { role: "system", content: aiResponse }],
+      // Add AI response
+      setChats(
+        updatedChats.map((chat) => {
+          if (chat.id === activeChat) {
+            return {
+              ...chat,
+              messages: [...chat.messages, { role: "system", content: formattedResponse }],
+            }
           }
-        }
-        return chat
-      }),
-    )
+          return chat
+        }),
+      )
+    } catch (error) {
+      console.error("Error getting response:", error);
+      
+      // Add error message to chat
+      setChats(
+        updatedChats.map((chat) => {
+          if (chat.id === activeChat) {
+            return {
+              ...chat,
+              messages: [...chat.messages, { 
+                role: "system", 
+                content: "Sorry, I couldn't process your request. Please try again later." 
+              }],
+            }
+          }
+          return chat
+        }),
+      )
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-    setIsLoading(false)
+  // Format JSON response to be readable in chat
+  const formatJsonResponse = (data) => {
+    if (!data) return "No results found";
+    
+    // Check if data is an array of car recommendations
+    if (Array.isArray(data)) {
+      return data.map((car, index) => {
+        return `
+**Car Recommendation ${index + 1}**
+- **Model**: ${car.model || car.name || 'N/A'}
+- **Make**: ${car.make || car.brand || 'N/A'}
+${car.year ? `- **Year**: ${car.year}\n` : ''}
+${car.price ? `- **Price**: ${car.price}\n` : ''}
+${car.engine ? `- **Engine**: ${car.engine}\n` : ''}
+${car.fuel_type ? `- **Fuel Type**: ${car.fuel_type}\n` : ''}
+${car.transmission ? `- **Transmission**: ${car.transmission}\n` : ''}
+${car.description ? `\n${car.description}\n` : ''}
+        `.trim();
+      }).join('\n\n');
+    }
+    
+    // If it's a single car or has a different structure
+    if (data.cars && Array.isArray(data.cars)) {
+      return formatJsonResponse(data.cars);
+    }
+    
+    // Fallback for other JSON structures
+    return `
+**Car Recommendation**
+${Object.entries(data).map(([key, value]) => {
+  // Format each key-value pair
+  if (typeof value === 'object' && value !== null) {
+    return `- **${key.replace(/_/g, ' ').toUpperCase()}**: ${JSON.stringify(value)}`;
+  }
+  return `- **${key.replace(/_/g, ' ').toUpperCase()}**: ${value}`;
+}).join('\n')}
+    `.trim();
   }
 
   const handleNewChat = () => {
@@ -98,21 +172,6 @@ export default function ConsultantPage() {
     // If the active chat was deleted, set the first chat as active
     if (activeChat === chatId) {
       setActiveChat(updatedChats[0].id)
-    }
-  }
-
-  // Simple mock AI response function
-  const getAIResponse = (userMessage) => {
-    const message = userMessage.toLowerCase()
-
-    if (message.includes("suv") || message.includes("family")) {
-      return "Based on your interest in SUVs, I'd recommend looking at the Toyota RAV4, Honda CR-V, or Mazda CX-5. These models offer excellent reliability, good fuel economy, and spacious interiors perfect for families. Would you like more specific details about any of these models?"
-    } else if (message.includes("electric") || message.includes("ev")) {
-      return "For electric vehicles, the Tesla Model 3, Hyundai Ioniq 5, and Ford Mustang Mach-E are excellent options with different price points. They offer good range, modern features, and varying charging capabilities. What's your budget range for an electric vehicle?"
-    } else if (message.includes("budget") || message.includes("cheap") || message.includes("affordable")) {
-      return "For budget-friendly options with good value, consider the Hyundai Elantra, Kia Forte, or Toyota Corolla. These vehicles offer reliability, good fuel economy, and modern features at a lower price point. What other factors are important in your car search?"
-    } else {
-      return "I'd be happy to help you find the perfect car. Could you tell me more about what you're looking for? Consider factors like vehicle type (sedan, SUV, truck), your typical usage (commuting, family, adventure), and any specific features that are important to you."
     }
   }
 
@@ -155,7 +214,14 @@ export default function ConsultantPage() {
                         chat.role === "user" ? "bg-black text-white" : "bg-primary-300 text-black"
                       }`}
                     >
-                      {chat.content}
+                      {/* Render markdown content for system messages */}
+                      {chat.role === "system" ? (
+                        <div dangerouslySetInnerHTML={{ 
+                          __html: formatMarkdown(chat.content)
+                        }} />
+                      ) : (
+                        chat.content
+                      )}
                     </div>
                   </div>
                 ))}
@@ -205,3 +271,9 @@ export default function ConsultantPage() {
   )
 }
 
+// Simple markdown formatter for bold text and newlines
+function formatMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br/>');
+}
