@@ -70,32 +70,47 @@ passport.deserializeUser(async (id, done) => {
 
 
 // --- Google OAuth Routes ---
-router.get('/auth/google', (req, res, next) => {
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    callbackURL: process.env.GOOGLE_CALLBACK_URL  // 👈 explicitly add this
-  })(req, res, next);
-});
-
 router.get('/auth/google/callback',
   passport.authenticate('google', {
-      failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=google_auth_failed`, // Redirect to frontend login on failure
-      failureMessage: true // Optional: adds failure message to session flash
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=google_auth_failed`,
+    failureMessage: true
   }),
-  (req, res) => {
-    // Successful authentication
-    // req.user is populated by deserializeUser
-    if (!req.user) {
-         // Should not happen if authentication succeeded, but good to check
-         console.error("Google auth callback success but req.user is missing.");
-         return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=auth_error`);
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        console.error("Google auth callback success but req.user is missing.");
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=auth_error`);
+      }
+
+      // ✅ Save user to DB if not already present
+      let user = await User.getUserByEmail(req.user.email);
+      if (!user) {
+        user = await User.createUser({
+          email: req.user.email,
+          first_name: req.user.first_name,
+        });
+      }
+
+      // ✅ Save user to session
+      req.session.user = {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name
+      };
+
+      console.log("User authenticated successfully:", req.session.user);
+
+      // ✅ Redirect to frontend dashboard
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard`);
+
+    } catch (err) {
+      console.error("Google callback error:", err);
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=server_error`);
     }
-    // Establish session
-    req.session.user = { id: req.user.id, email: req.user.email, first_name: req.user.first_name };
-    // Redirect to the frontend dashboard
-    res.redirect(process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/dashboard` : 'http://localhost:3000/dashboard');
   }
 );
+
+
 
 router.post('/register', async (req, res) => {
   try {

@@ -34,4 +34,14 @@ module.exports = {
     });
   },
 
+  // Optional: Add this if you use deserializeUser
+  getUserById: (id) => {
+    return new Promise((resolve, reject) => {
+      const sql = 'SELECT * FROM users WHERE id = ?';
+      db.query(sql, [id], (error, results) => {
+        if (error) return reject(error);
+        resolve(results[0]);
+      });
+    });
+  }
 };
