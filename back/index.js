@@ -14,6 +14,7 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
+app.use(express.json());
 
 if (!process.env.Secret_Key) {
     console.error("FATAL ERROR: Session Secret_Key is not defined.");

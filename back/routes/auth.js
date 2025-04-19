@@ -67,6 +67,11 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+router.get('/auth/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email']
+  })
+);
 
 
 // --- Google OAuth Routes ---
