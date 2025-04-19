@@ -53,7 +53,7 @@ export default function ConsultantPage() {
 
     try {
       // Call the API endpoint with the user's message
-      const response = await axios.post("http://localhost:3001/generate", {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/generate-response`, {
         prompt: userMessage
       });
       

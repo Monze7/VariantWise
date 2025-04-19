@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios'); // Import axios
 
 // Generate car recommendations based on user prompt
-router.post("/generate", async (req, res) => {
+router.post("/generate-response", async (req, res) => {
     const userPrompt = req.body.prompt;
 
     // Basic validation: Check if prompt exists
