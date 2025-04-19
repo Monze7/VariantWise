@@ -11,10 +11,9 @@ const authRoutes = require('./routes/auth'); // This now contains the passport c
 
 // --- Middleware Setup ---
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
-app.use(express.json());
 
 if (!process.env.Secret_Key) {
     console.error("FATAL ERROR: Session Secret_Key is not defined.");
