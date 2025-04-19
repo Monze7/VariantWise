@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff } from "lucide-react"
 import axios from 'axios'
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -100,9 +102,15 @@ export default function SignInPage() {
             <span className="mx-4 flex-shrink text-primary-200 text-sm">or</span>
             <div className="flex-grow border-t border-primary-300"></div>
           </div>
-          <Button variant="outline" className="w-full border-primary-300 text-white hover:bg-primary-500">
-            Continue with Google
-          </Button>
+          <a
+        href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`}
+        className={cn(
+          buttonVariants({ variant: "outline" }), // Use buttonVariants for styling
+          "w-full border-primary-300 text-white hover:bg-primary-500" // Add specific styles
+        )}
+      >
+        Continue with Google
+      </a>
           <div className="text-center text-sm text-primary-200">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-primary-100 hover:underline hover:text-white">
