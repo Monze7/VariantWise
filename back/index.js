@@ -1,5 +1,3 @@
-// filepath: e:\Users\Lenovo\Downloads\project\back\index.js
-
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -13,6 +11,11 @@ const authRoutes = require('./routes/auth');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const SESSION_SECRET = process.env.Secret_Key || 'fallback-secret';
 const IS_PROD = process.env.NODE_ENV === 'production';
+
+// ✅ Trust proxy needed for secure cookies to work behind a proxy
+if (IS_PROD) {
+  app.set('trust proxy', 1);
+}
 
 // --- CORS Setup (allow frontend to send cookies) ---
 app.use(cors({
@@ -30,8 +33,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: IS_PROD, // true only in production with HTTPS
-    sameSite: IS_PROD ? 'none' : 'lax' // allow cookies across domains only if HTTPS
+    secure: IS_PROD,
+    sameSite: IS_PROD ? 'none' : 'lax'
   }
 }));
 
