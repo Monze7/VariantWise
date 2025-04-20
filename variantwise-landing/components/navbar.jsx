@@ -46,14 +46,11 @@ export function Navbar() {
           <Link href="/" className="text-sm font-medium transition-colors hover:text-primary-200 text-white">
             Home
           </Link>
-          <Link href="/features" className="text-sm font-medium transition-colors hover:text-primary-200 text-white">
-            Features
+          <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary-200 text-white">
+            Dashboard
           </Link>
-          <Link href="/pricing" className="text-sm font-medium transition-colors hover:text-primary-200 text-white">
-            Pricing
-          </Link>
-          <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary-200 text-white">
-            About
+          <Link href="/consultant" className="text-sm font-medium transition-colors hover:text-primary-200 text-white">
+            Consultation
           </Link>
         </nav>
         <div className="flex items-center gap-2">
