@@ -1,18 +1,15 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MoveRight } from "lucide-react"
 import Image from "next/image"
+import { useEffect , useState } from "react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
 
 export default function LandingPage() {
 
-  // utils/authorize.js
-const authorize = (navigate, isLoggedIn, redirectPath) => {
-  if (isLoggedIn) {
-    navigate(redirectPath);
-  } else {
-    alert("Please login or register to continue.");
-  }
-};
 
   return (
     <div className="flex min-h-screen flex-col  bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-700 via-black to-black text-white animate-pulse">

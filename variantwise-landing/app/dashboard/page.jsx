@@ -1,8 +1,31 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect , useState } from "react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
 
 export default function DashboardPage() {
+
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/me`, { withCredentials: true })
+      .then(() => {
+        setLoading(false) // ✅ user is logged in
+      })
+      .catch(() => {
+        if (process.env.NODE_ENV === "development") {
+          alert("You are not logged in. Please log in to access the consultant page.");
+        }
+        router.replace("/signin") // ❌ not logged in
+      })
+  }, [])
+
+  if (loading) return null
   return (
     <div className="container mx-auto p-4 py-8 bg-primary-500">
       <h1 className="text-3xl font-bold mb-6 text-white">Welcome to your Dashboard</h1>

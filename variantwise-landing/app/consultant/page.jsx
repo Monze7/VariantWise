@@ -7,8 +7,27 @@ import { SendHorizontal, PlusCircle } from "lucide-react"
 import { ConsultantSidebar } from "@/components/consultant-sidebar"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import axios from "axios"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+
 
 export default function ConsultantPage() {
+
+  const [loading, setLoading] = useState(true)
+    const router = useRouter()
+  
+    useEffect(() => {
+      axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/me`, { withCredentials: true })
+        .then(() => setLoading(false))
+        .catch(() => {
+          if (process.env.NODE_ENV === "development") {
+            alert("You are not logged in. Please log in to access the consultant page.");
+          }
+          router.replace("/signin");
+        });
+    }, []);
+    
+
   const [message, setMessage] = useState("")
   const [activeChat, setActiveChat] = useState("default")
   const [chats, setChats] = useState([
