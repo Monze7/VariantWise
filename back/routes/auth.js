@@ -87,7 +87,7 @@ router.get('/auth/google/callback',
         return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=auth_error`);
       }
 
-      // ✅ Save user to DB if not already present
+      // Save user to DB if not already present
       let user = await User.getUserByEmail(req.user.email);
       if (!user) {
         user = await User.createUser({
@@ -96,17 +96,19 @@ router.get('/auth/google/callback',
         });
       }
 
-      // ✅ Save user to session
+      // Set session
       req.session.user = {
         id: user.id,
         email: user.email,
         first_name: user.first_name
       };
 
-      console.log("User authenticated successfully:", req.session.user);
+      console.log("✅ User authenticated successfully:", req.session.user);
 
-      // ✅ Redirect to frontend dashboard
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard`);
+      // ✅ Fix: Wait for session to save before redirecting
+      req.session.save(() => {
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard`);
+      });
 
     } catch (err) {
       console.error("Google callback error:", err);
@@ -114,6 +116,7 @@ router.get('/auth/google/callback',
     }
   }
 );
+
 
 
 
@@ -137,13 +140,34 @@ router.post('/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    req.session.user = { id: user.id, email: user.email, first_name: user.first_name };
-    res.json({ success: true, message: 'Logged in', user: { first_name: user.first_name } });
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      first_name: user.first_name
+    };
+
+    req.session.save(() => {
+      // 🔥 Tell browser to save cookie now
+      res.cookie('connect.sid', req.sessionID, {
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === 'production'
+      });
+
+      res.json({
+        success: true,
+        message: 'Logged in',
+        user: { first_name: user.first_name }
+      });
+    });
+
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ success: false, message: 'Login failed' });
   }
 });
+
+
 
 router.post('/logout', autho, (req, res) => {
   req.session.destroy(() => {
@@ -153,6 +177,10 @@ router.post('/logout', autho, (req, res) => {
 
 router.get('/dashboard', autho, (req, res) => {
   res.json({ success: true, message: 'Welcome to your dashboard' });
+});
+
+router.get('/me', autho, (req, res) => {
+  res.json({ user: req.session.user });
 });
 
 module.exports = router;

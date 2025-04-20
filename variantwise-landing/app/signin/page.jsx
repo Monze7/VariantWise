@@ -24,7 +24,9 @@ export default function SignInPage() {
     setIsLoading(true)
 
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/login`, { email, password })
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/login`, { email, password }, {
+        withCredentials: true // 🔥 This is the magic!
+      })
       console.log('Login successful:', response.data)
       router.push("/dashboard")
     } catch (error) {

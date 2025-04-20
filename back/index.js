@@ -1,4 +1,5 @@
 // filepath: e:\Users\Lenovo\Downloads\project\back\index.js
+
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -7,29 +8,36 @@ const app = express();
 require('dotenv').config();
 require('./db/config');
 const responseRoutes = require('./routes/response');
-const authRoutes = require('./routes/auth'); // This now contains the passport config
+const authRoutes = require('./routes/auth');
 
-// --- Middleware Setup ---
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const SESSION_SECRET = process.env.Secret_Key || 'fallback-secret';
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+// --- CORS Setup (allow frontend to send cookies) ---
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: FRONTEND_URL,
   credentials: true
 }));
+
+// --- JSON Parser ---
 app.use(express.json());
 
-if (!process.env.Secret_Key) {
-    console.error("FATAL ERROR: Session Secret_Key is not defined.");
-    process.exit(1);
-}
+// --- Session Setup ---
 app.use(session({
-  secret: process.env.Secret_Key,
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  // cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, sameSite: 'lax' }
+  cookie: {
+    httpOnly: true,
+    secure: IS_PROD, // true only in production with HTTPS
+    sameSite: IS_PROD ? 'none' : 'lax' // allow cookies across domains only if HTTPS
+  }
 }));
 
+// --- Passport Initialization ---
 app.use(passport.initialize());
 app.use(passport.session());
-// Passport strategies and serialization are now configured within authRoutes
 
 // --- Routes ---
 app.use('/', responseRoutes);
@@ -38,15 +46,5 @@ app.use('/api', authRoutes);
 // --- Server Start ---
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
-
-// --- REMOVED DUPLICATE PASSPORT CONFIGURATION ---
-// // Passport session setup (REMOVED - Now handled in auth.js)
-// passport.serializeUser((user, done) => {
-//   // ... REMOVED ...
-// });
-//
-// passport.deserializeUser(async (id, done) => {
-//   // ... REMOVED ...
-// });

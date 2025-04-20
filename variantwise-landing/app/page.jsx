@@ -15,7 +15,7 @@ const authorize = (navigate, isLoggedIn, redirectPath) => {
 };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#2b2b2b]">
+    <div className="flex min-h-screen flex-col  bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-700 via-black to-black text-white animate-pulse">
       <main className="flex-1">
       <section className="w-full h-[90vh]">
   <div className="container px-4 md:px-6 h-full flex items-center justify-center">
