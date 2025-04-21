@@ -444,24 +444,7 @@ export default function ConsultantPage() {
 
   return (
     <div className="bg-gray-900 min-h-screen text-white">
-      <header className="border-b border-gray-800 py-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-xl font-bold">VariantWise</h1>
-          <div className="flex items-center">
-            <span className="mr-4">Hi, Abhi</span>
-            <Button variant="destructive">Logout</Button>
-          </div>
-        </div>
-      </header>
-
-      <nav className="container mx-auto py-4">
-        <div className="flex space-x-6">
-          <a href="#" className="hover:text-blue-400">Home</a>
-          <a href="#" className="hover:text-blue-400">Dashboard</a>
-          <a href="#" className="hover:text-blue-400 font-medium">Consultation</a>
-        </div>
-      </nav>
-
+      
       <div className="container mx-auto max-w-4xl p-4">
         <div className="flex flex-col h-[70vh]">
           <div className="flex justify-between items-center mb-4">
