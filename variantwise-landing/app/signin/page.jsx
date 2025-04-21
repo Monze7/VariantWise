@@ -37,9 +37,9 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4 bg-primary-500">
-      <Card className="w-full max-w-md border-primary-400 shadow-lg bg-primary-400">
-        <CardHeader className="space-y-1 bg-gradient-to-r from-black to-primary-400 rounded-t-lg">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900 via-black to-black text-white">
+      <Card className="w-full max-w-md border-primary-400 shadow-lg">
+        <CardHeader className="space-y-1  rounded-t-lg">
           <CardTitle className="text-2xl font-bold text-center text-white">Sign in to VariantWise</CardTitle>
           <CardDescription className="text-center text-primary-200">
             Enter your email and password to access your account
