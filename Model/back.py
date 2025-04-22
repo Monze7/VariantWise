@@ -486,6 +486,7 @@ def health_check():
     global llm, df # Ensure globals are accessible
     return jsonify({'status': 'ok', 'initialized': llm is not None and df is not None})
 
-if __name__ == '_main_':
-    initialize() # Call initialize directly before running the app
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    initialize()  # Call initialize directly before running the app
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
