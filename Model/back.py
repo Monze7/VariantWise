@@ -20,7 +20,7 @@ aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
 aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
 aws_region = os.getenv("AWS_REGION")
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # More permissive CORS configuration with explicit methods and headers
 CORS(app, resources={r"/api/*": {
@@ -486,6 +486,6 @@ def health_check():
     global llm, df # Ensure globals are accessible
     return jsonify({'status': 'ok', 'initialized': llm is not None and df is not None})
 
-if _name_ == '_main_':
+if __name__ == '_main_':
     initialize() # Call initialize directly before running the app
     app.run(host='0.0.0.0', port=5000)
