@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ChevronDown, ChevronUp, Search, MessageSquare, RefreshCw, Check } from "lucide-react";
 
-const API_BASE_URL = "http://127.0.0.1:5000"; // Update with your actual API URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_MODEL_URL; // Update with your actual API URL
 
 const computeComfort = (car) => {
   const scores = [
@@ -97,7 +97,7 @@ export default function Home() {
     setIsAsking(true);
     setChatResponse("");
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/ask", {
+      const response = await axios.post(`${API_BASE_URL}/api/ask`, {
         question,
         session_id: sessionId
       });
