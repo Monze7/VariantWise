@@ -97,7 +97,7 @@ export default function Home() {
     setIsAsking(true);
     setChatResponse("");
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/ask', {
+      const response = await axios.post("http://127.0.0.1:5000/api/ask", {
         question,
         session_id: sessionId
       });
