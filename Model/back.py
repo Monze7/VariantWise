@@ -21,7 +21,7 @@ aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
 aws_region = os.getenv("AWS_REGION")
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}) # Be more specific for security
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "https://variant-wise.vercel.app"]}}) # Allow multiple origins
 
 # === Constants ===
 DATA_FILE = "final_dataset.csv"
