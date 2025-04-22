@@ -1,149 +1,215 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import axios from "axios";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { MoveRight } from "lucide-react"
+import Image from "next/image"
+import { useEffect , useState } from "react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
 
-const API_BASE_URL = "https://your-api-endpoint.com/api";
+export default function LandingPage() {
 
-const computeComfort = (car) => {
-  const scores = [
-    car.front_seat_comfort_score,
-    car.rear_seat_comfort_score,
-    car.bump_absorption_score,
-    car.material_quality_score,
-  ];
-  return (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
-};
-
-export default function Home() {
-  const [prefs, setPrefs] = useState({
-    minBudget: 500000,
-    maxBudget: 2000000,
-    fuel: "Any",
-    body: "Any",
-    transmission: "Any",
-    seating: 5,
-    features: [],
-    performance: 5,
-  });
-
-  const [results, setResults] = useState([]);
-  const [question, setQuestion] = useState("");
-  const [chatResponse, setChatResponse] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [isAsking, setIsAsking] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (hasSearched && question.trim() === "") {
-      setChatResponse("");
-    }
-  }, [question, hasSearched]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (prefs.minBudget > prefs.maxBudget) {
-      alert("Minimum budget cannot be greater than maximum budget");
-      return;
-    }
-
-    setIsSearching(true);
-    setError("");
-
-    try {
-      const response = await axios.post(`${API_BASE_URL}/recommendations`, prefs);
-      setResults(response.data);
-      setHasSearched(true);
-    } catch (err) {
-      console.error("Recommendation error:", err);
-      setError("Failed to get recommendations. Please try again.");
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleAsk = async () => {
-    if (!question.trim()) return;
-    setIsAsking(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/ask`, {
-        question,
-        cars: results,
-      });
-      setChatResponse(response.data.answer);
-    } catch (err) {
-      console.error("Chat error:", err);
-      setChatResponse("Sorry, I couldn't process your question. Please try again.");
-    } finally {
-      setIsAsking(false);
-    }
-  };
 
   return (
-    <div className="bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900 via-black to-black text-white min-h-screen px-4 py-6 sm:px-6 lg:px-10 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">🚗 Smart Car Recommender</h1>
+    <div className="flex min-h-screen flex-col  bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-700 via-black to-black text-white ">
+      <main className="flex-1">
+      <section className="w-full h-[90vh]">
+  <div className="container px-4 md:px-6 h-full flex items-center justify-center">
+    <div className="flex flex-col items-center text-center space-y-10">
+      <div className="space-y-8 text-center px-4 font-sans">
+        <h1 className="text-7xl font-black tracking-tight text-white leading-tight">
+          <span className="text-primary-100 drop-shadow-md">VariantWise</span>
+        </h1>
 
-      {!hasSearched ? (
-        <form onSubmit={handleSubmit} className="bg-[#111827] p-6 rounded-xl shadow-md space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input className="p-2 rounded bg-[#1f2937] text-white border border-gray-600" type="number" required value={prefs.minBudget} onChange={(e) => setPrefs(prev => ({ ...prev, minBudget: parseInt(e.target.value) }))} placeholder="Min Budget (₹)" />
-            <input className="p-2 rounded bg-[#1f2937] text-white border border-gray-600" type="number" required value={prefs.maxBudget} onChange={(e) => setPrefs(prev => ({ ...prev, maxBudget: parseInt(e.target.value) }))} placeholder="Max Budget (₹)" />
-            <select className="p-2 rounded bg-[#1f2937] text-white border border-gray-600" value={prefs.fuel} onChange={(e) => setPrefs(prev => ({ ...prev, fuel: e.target.value }))}>{["Any", "Petrol", "Diesel", "Electric", "CNG", "Hybrid"].map(f => <option key={f}>{f}</option>)}</select>
-            <select className="p-2 rounded bg-[#1f2937] text-white border border-gray-600" value={prefs.body} onChange={(e) => setPrefs(prev => ({ ...prev, body: e.target.value }))}>{["Any", "SUV", "Sedan", "Hatchback", "MUV", "Crossover"].map(b => <option key={b}>{b}</option>)}</select>
-            <select className="p-2 rounded bg-[#1f2937] text-white border border-gray-600" value={prefs.transmission} onChange={(e) => setPrefs(prev => ({ ...prev, transmission: e.target.value }))}>{["Any", "Manual", "Automatic", "CVT", "DCT", "AMT"].map(t => <option key={t}>{t}</option>)}</select>
-            <input className="p-2 rounded bg-[#1f2937] text-white border border-gray-600" type="number" min="2" max="9" value={prefs.seating} onChange={(e) => setPrefs(prev => ({ ...prev, seating: parseInt(e.target.value) }))} placeholder="Min Seats" />
-          </div>
+        <h2 className="text-xl font-bold text-primary-200 leading-relaxed">
+          Your Personalized Car Consultant
+        </h2>
 
-          <div>
-            <label className="block font-medium mb-1">Must-Have Features</label>
-            <select multiple className="w-full border border-gray-600 p-2 rounded h-32 bg-[#1f2937] text-white" onChange={(e) => {
-              const opts = Array.from(e.target.selectedOptions).map((o) => o.value);
-              setPrefs((prev) => ({ ...prev, features: opts }));
-            }}>
-              {["Sunroof", "Apple CarPlay/Android Auto", "Automatic Climate Control", "360 Camera", "Lane Assist", "Ventilated Seats", "Wireless Charging"].map((f) => <option key={f}>{f}</option>)}
-            </select>
-          </div>
+        <p className="mx-auto text-justify max-w-[730px] text-primary-200 md:text-xl leading-loose font-normal">
+          Discover the easiest way to find your perfect car. With AI-powered insights, real-world reviews,
+          and expert recommendations, VariantWise helps you choose the <strong>right variant</strong> effortlessly. Join us and make confident car buying decisions today!
+        </p>
+      </div>
 
-          <div>
-            <label className="block font-medium mb-1">Performance Priority (1-10)</label>
-            <input type="range" min="1" max="10" value={prefs.performance} className="w-full" onChange={(e) => setPrefs(prev => ({ ...prev, performance: parseInt(e.target.value) }))} />
-          </div>
+      <div className="flex flex-col gap-3 min-[400px]:flex-row">
+        <Link href="/dashboard">
+          <Button
+            size="lg"
+            className="w-full min-[400px]:w-auto bg-black hover:bg-primary-400 text-white border border-primary-300"
+          >
+            Dashboard
+            <MoveRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+        <Link href="/consultant">
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full min-[400px]:w-auto border-primary-300 text-white hover:bg-primary-400"
+          >
+            AI Consultant
+          </Button>
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
 
-          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-lg">
-            {isSearching ? "Finding Cars..." : "Find My Car"}
-          </button>
-
-          {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
-        </form>
-      ) : (
-        <>
-          <h2 className="text-2xl font-semibold my-6">Top Recommendations</h2>
-          {results.map((match, idx) => (
-            <div key={idx} className="bg-[#111827] border border-gray-700 p-6 rounded-xl shadow mb-6">
-              <h3 className="text-xl font-bold mb-2">{match.car.variant} | {match.car.price}</h3>
-              <p className="text-sm">Fuel: {match.car["Fuel Type"]} | Transmission: {match.car["Transmission Type"]} | Seats: {match.car["Seating Capacity"]} | Comfort: {computeComfort(match.car)}/5</p>
-              <p className="text-gray-300 text-sm mt-2">{match.car.description}</p>
-              <div className="mt-2 text-sm text-green-400">
-                {Object.entries(match.details).map(([k, v]) => <p key={k}>• {v}</p>)}
+        <section className="w-full py-12 md:py-24 lg:py-32 ">
+          <div className="container px-4 md:px-6">
+            <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-black text-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6"
+                  >
+                    <path d="M3 17h4v1a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-1h2v1a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-1h4" />
+                    <path d="M14 7h-4" />
+                    <path d="M19 17H5" />
+                    <path d="M21 9a2 2 0 0 0-2-2h-2l-2-3h-6L7 7H5a2 2 0 0 0-2 2v8h18V9Z" />
+                  </svg>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-white">Variant-Specific Insights</h3>
+                  <p className="text-primary-200">
+                    Get detailed information about specific car variants, not just the top-tier models.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-black text-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-white">Real-World Experiences</h3>
+                  <p className="text-primary-200">
+                    Access aggregated insights from real owners about comfort, quality, and driving feel.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-black text-white">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-6 w-6"
+                  >
+                    <path d="M20 17a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2" />
+                    <path d="M14 13V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6" />
+                    <path d="M12 19a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2" />
+                    <path d="M20 19h-8" />
+                  </svg>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-white">Personalized Recommendations</h3>
+                  <p className="text-primary-200">
+                    Get AI-powered car recommendations based on your specific needs and preferences.
+                  </p>
+                </div>
               </div>
             </div>
-          ))}
-
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-2">Ask About These Cars</h3>
-            <div className="flex gap-2">
-              <input type="text" placeholder="Your question..." className="flex-1 border border-gray-600 p-2 rounded bg-[#1f2937] text-white" value={question} onChange={(e) => setQuestion(e.target.value)} />
-              <button onClick={handleAsk} disabled={isAsking} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                {isAsking ? "Thinking..." : "Ask"}
-              </button>
-            </div>
-            {chatResponse && <div className="mt-4 p-4 bg-[#1f2937] border border-gray-700 rounded text-sm whitespace-pre-wrap">{chatResponse}</div>}
           </div>
-
-          <button className="mt-6 text-red-400 underline" onClick={() => { setHasSearched(false); setResults([]); setChatResponse(""); setError(""); }}>Start New Search</button>
-        </>
-      )}
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 ">
+          <div className="container px-4 md:px-6">
+            <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
+              <div className="space-y-4">
+                <div className="inline-flex items-center rounded-lg bg-primary-400 px-3 py-1 text-sm">
+                  <span className="font-medium text-white">How It Works</span>
+                </div>
+                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-white">
+                  Make informed car buying decisions with VariantWise
+                </h2>
+                <p className="max-w-[600px] text-primary-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Our AI-powered platform aggregates technical specifications and real-life experience factors to help
+                  you find the perfect car variant for your needs.
+                </p>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <Link href="/consultant">
+                    <Button
+                      size="lg"
+                      className="w-full min-[400px]:w-auto bg-black hover:bg-primary-400 text-white border border-primary-300"
+                    >
+                      Try AI Consultant
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <div className="relative w-full max-w-[600px] overflow-hidden rounded-xl shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary-400/20 to-black/20"></div>
+                  <Image
+                    src="/placeholder.svg?height=400&width=600"
+                    width={600}
+                    height={400}
+                    alt="VariantWise Dashboard Preview"
+                    className="aspect-video overflow-hidden rounded-xl object-cover object-center"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 text-white">
+          <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
+            <div className="space-y-3">
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Ready to find your perfect car?</h2>
+              <p className="mx-auto max-w-[600px] text-primary-200 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Join VariantWise today and experience a personalized car buying journey.
+              </p>
+            </div>
+            <div className="mx-auto w-full max-w-sm space-y-2">
+              <form className="flex space-x-2">
+                <input
+                  className="flex h-10 w-full rounded-md border border-primary-300 bg-primary-400/90 px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-primary-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Enter your email"
+                  type="email"
+                />
+                <Button type="submit" className="bg-black text-white hover:bg-primary-400 border border-primary-300">
+                  Subscribe
+                </Button>
+              </form>
+              <p className="text-xs text-primary-200">
+                Sign up to get notified when we launch.{" "}
+                <Link href="/terms" className="underline underline-offset-2 hover:text-white">
+                  Terms & Conditions
+                </Link>
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-  );
+  )
 }
+
