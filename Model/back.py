@@ -20,17 +20,19 @@ aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
 aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
 aws_region = os.getenv("AWS_REGION")
 
-app = Flask(__name__)
+app = Flask(_name_)
 
+# More permissive CORS configuration with explicit methods and headers
 CORS(app, resources={r"/api/*": {
     "origins": [
         "http://localhost:3000",
         "https://variant-wise-32vvalnk3-monillakhotia912-gmailcoms-projects.vercel.app",
-        "https://variant-wise.vercel.app",  # optional if still used
-        "https://variantwise-model.onrender.com"  # Add this origin
-    ]
+        "https://variant-wise.vercel.app",
+        "https://variantwise-model.onrender.com"
+    ],
+    "methods": ["GET", "POST", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
 }})
- # Allow multiple origins
 
 # === Constants ===
 DATA_FILE = "final_dataset.csv"
@@ -295,10 +297,9 @@ car_matches = {}
 car_reviews = {}
 
 # Load models and data at startup
-# @app.before_first_request # This decorator is deprecated
 def initialize():
     global embedding_model, llm, df
-    print("Initializing models and data...") # Added print statement
+    print("Initializing models and data...")
     embedding_model, llm = load_models()
     df = load_car_data()
     if embedding_model and llm and not df.empty:
@@ -307,6 +308,15 @@ def initialize():
         print("Initialization failed.")
 
 # === API Endpoints ===
+# Add OPTIONS method handlers for CORS preflight requests
+@app.route('/api/recommend', methods=['OPTIONS'])
+def options_recommend():
+    return '', 200
+
+@app.route('/api/ask', methods=['OPTIONS'])
+def options_ask():
+    return '', 200
+
 @app.route('/api/recommend', methods=['POST'])
 def recommend_cars():
     global df, embedding_model # Ensure globals are accessible
@@ -476,6 +486,6 @@ def health_check():
     global llm, df # Ensure globals are accessible
     return jsonify({'status': 'ok', 'initialized': llm is not None and df is not None})
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     initialize() # Call initialize directly before running the app
     app.run(host='0.0.0.0', port=5000)
