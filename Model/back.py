@@ -26,7 +26,8 @@ CORS(app, resources={r"/api/*": {
     "origins": [
         "http://localhost:3000",
         "https://variant-wise-32vvalnk3-monillakhotia912-gmailcoms-projects.vercel.app",
-        "https://variant-wise.vercel.app"  # optional if still used
+        "https://variant-wise.vercel.app",  # optional if still used
+        "https://variantwise-model.onrender.com"  # Add this origin
     ]
 }})
  # Allow multiple origins
