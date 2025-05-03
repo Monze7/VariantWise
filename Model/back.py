@@ -22,17 +22,14 @@ aws_region = os.getenv("AWS_REGION")
 
 app = Flask(__name__)
 
-# More permissive CORS configuration with explicit methods and headers
-CORS(app, resources={r"/api/*": {
-    "origins": [
-        "http://localhost:3000",
-        "https://variant-wise-32vvalnk3-monillakhotia912-gmailcoms-projects.vercel.app",
-        "https://variant-wise.vercel.app",
-        "https://variantwise-model.onrender.com"
-    ],
-    "methods": ["GET", "POST", "OPTIONS"],
-    "allow_headers": ["Content-Type", "Authorization", "Content-Length", "X-Requested-With"]
-}})
+# Apply CORS to all routes with specific origins
+CORS(app, origins=[
+    "http://localhost:3000",
+    "https://variant-wise-32vvalnk3-monillakhotia912-gmailcoms-projects.vercel.app",
+    "https://variant-wise.vercel.app",
+    "https://variantwise-model.onrender.com"
+], methods=["GET", "POST", "OPTIONS"],
+   allow_headers=["Content-Type", "Authorization", "Content-Length", "X-Requested-With"])
 
 # === Constants ===
 DATA_FILE = "final_dataset.csv"
@@ -311,11 +308,27 @@ def initialize():
 # Add OPTIONS method handlers for CORS preflight requests
 @app.route('/api/recommend', methods=['OPTIONS'])
 def options_recommend():
-    return '', 200
+    response = jsonify({})
+    response.headers.add('Access-Control-Allow-Origin', 'https://variant-wise.vercel.app')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return response
 
 @app.route('/api/ask', methods=['OPTIONS'])
 def options_ask():
-    return '', 200
+    response = jsonify({})
+    response.headers.add('Access-Control-Allow-Origin', 'https://variant-wise.vercel.app')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return response
+
+# Add after_request handler to ensure CORS headers are added to all responses
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://variant-wise.vercel.app')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    return response
 
 @app.route('/api/recommend', methods=['POST'])
 def recommend_cars():
@@ -326,7 +339,6 @@ def recommend_cars():
     try:
         # Get user preferences from request
         data = request.json
-
         # Validate required fields
         required_fields = ['min_budget', 'max_budget', 'fuel_type', 'body_type',
                           'transmission', 'seating', 'features', 'performance']
@@ -407,7 +419,6 @@ def recommend_cars():
                 'combined_score': float(car_match['combined_score']), # Ensure float
                 'details': car_match['details']
             })
-
 
         # Store matches in session (using a simple dict for now)
         session_id = data.get('session_id', str(hash(user_summary)))
