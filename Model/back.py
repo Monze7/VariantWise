@@ -500,3 +500,4 @@ def health_check():
 if __name__ == '__main__':
     initialize() # Call initialize directly before running the app
     app.run(host='0.0.0.0', port=5000)
+    # Note: In production, use a WSGI server like Gunicorn to run the app.
