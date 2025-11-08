@@ -167,12 +167,6 @@ You're now ready to experience AI-powered car recommendations!
 
 ---
 
-## 📬 Feedback & Contributions
-
-We welcome feedback and contributions! Feel free to open issues or submit PRs to make VariantWise better.
-
----
-
 ## 🛡 License
 
 This project is licensed under [MIT License](LICENSE).
